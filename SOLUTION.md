@@ -1,6 +1,6 @@
 # Solution
 
-By _Your name/Email here_
+By Linda Eng/90lineng@gmail.com
 
 ## Notes on implementation
 _Please leave any details you think are worth sharing regarding your implementation._
