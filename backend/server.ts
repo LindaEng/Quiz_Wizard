@@ -1,6 +1,6 @@
 import cors from "@fastify/cors";
 import fastify from "fastify";
-import { db } from "./db-client";
+import { quizRoutes } from "./routes/quizRoutes";
 
 const server = fastify();
 
@@ -12,23 +12,7 @@ server.get("/", async (_request, _reply) => {
 	return "hello world\n";
 });
 
-server.get("/users", (_request, reply) => {
-	const data = db.prepare("SELECT * FROM users").all();
-
-	return data;
-});
-
-server.get("/quizzes", (_request, reply) => {
-	const data = db.prepare("SELECT * FROM quizzes").all();
-
-	return data;
-});
-
-server.get("/quizzes/:id", (request, reply) => {
-	const data = db.prepare("SELECT * FROM quizzes WHERE id = :id");
-
-	return data.get(request.params);
-});
+server.register(quizRoutes, { prefix: "/api" });
 
 server.listen({ port: PORT }, (err) => {
 	if (err) {

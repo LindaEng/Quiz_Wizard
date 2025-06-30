@@ -7,6 +7,7 @@ export function RootPage() {
 	const [error, setError] = useState<Error | null>(null);
 
 	useEffect(() => {
+
 		fetch(quizzesApiUrl({}))
 			.then((res) => res.json())
 			.then(setQuizzes)
