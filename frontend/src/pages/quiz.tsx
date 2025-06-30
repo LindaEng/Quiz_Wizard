@@ -18,6 +18,9 @@ export function QuizPage() {
 	const [quiz, setQuiz] = useState<Quiz | null>(null);
 	const [questions, setQuestions] = useState<any[]>([]);
 	const [error, setError] = useState<Error | null>(null);
+	const [current, setCurrent] = useState(0);
+	const [showQuiz, setShowQuiz] = useState(false);
+
 	useEffect(() => {
 		fetch(quizApiUrl({ id }))
 			.then((res) => res.json())
@@ -39,28 +42,54 @@ export function QuizPage() {
 		);
 
 	if (!quiz) return <div className="text-center p-8">Loading...</div>;
+	    if (!showQuiz) {
+        return (
+            <Card className="w-[600px] mx-auto">
+                <CardHeader className="pb-8">
+                    <CardTitle>Quiz #{quiz.id}</CardTitle>
+                    <CardDescription>{quiz.name}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <p>This quiz has {questions.length} questions.</p>
+                </CardContent>
+                <CardFooter className="flex justify-end pt-8">
+                    <button
+                        className="px-4 py-2 bg-blue-500 text-white rounded"
+                        onClick={() => setShowQuiz(true)}
+                    >
+                        Take the quiz
+                    </button>
+                </CardFooter>
+            </Card>
+        );
+    }
+
+	const q = questions[current];
 
 	return (
 		<Card className="w-[600px] mx-auto">
 			<CardHeader className="pb-8">
 				<CardTitle>Quiz #{quiz.id}</CardTitle>
-				<CardDescription>Quiz details below...</CardDescription>
+				<CardDescription>
+					{quiz.name}<br/>
+					Question {current + 1} of {questions.length}
+				</CardDescription>
 			</CardHeader>
-			<CardContent>Quiz name: {quiz.name}
-				<ul className="mt-4">
-					{questions.map((q) => (
-						<li key={q.id}>
-							{q.question_content}
-							{q.choices && (
-								<ul>
-									{q.choices.split(";;").map((choice: string, idx: number) => (
+			<CardContent>
+				{q && (
+					<div>
+						<div className="mb-4">{q.question_content}</div>
+						{q.choices && (
+							<ul>
+								{q.choices.split(";;").map((choice: string, idx: number) => (
+									<ol>
 										<li key={idx}>{choice}</li>
-									))}
-								</ul>
-							)}
-						</li>
-					))}
-				</ul>
+									</ol>
+								))}
+							</ul>
+						)}
+					</div>
+				)}
 			</CardContent>
 			<CardFooter className="flex justify-between pt-8">
 				<Link
@@ -69,6 +98,20 @@ export function QuizPage() {
 				>
 					Back to home page
 				</Link>
+				<button
+					onClick={() => setCurrent((c) => c - 1)}
+					disabled={current === 0}
+					className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"				
+				>
+					Back
+				</button>
+				<button
+					onClick={() => setCurrent((c) => c + 1)}
+					disabled={current === questions.length - 1}
+					className="px-4 py-2 bg-green-500 text-white rounded disabled:opacity-50"
+				>
+					Next
+				</button>
 			</CardFooter>
 		</Card>
 	);
