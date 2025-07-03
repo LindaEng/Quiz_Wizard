@@ -7,6 +7,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
+import { ReviewModal } from "@/components/reviewModal";
 import { quizApiUrl, rootPath } from "@/paths";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -21,6 +22,7 @@ export function QuizPage() {
     const [current, setCurrent] = useState(0);
     const [showQuiz, setShowQuiz] = useState(false);
     const [answers, setAnswers] = useState<(number | string | null)[]>([]);
+	const [showReviewModal, setShowReviewModal] = useState(false);
 
     useEffect(() => {
         fetch(quizApiUrl({ id }))
@@ -86,80 +88,104 @@ export function QuizPage() {
         return sum;
     }, 0);
 
+
     return (
-        <Card className="w-[600px] mx-auto">
-            <CardHeader className="pb-8">
-                <CardTitle>Quiz #{quiz.id}</CardTitle>
-                <CardDescription>
-                    {quiz.name}
-                    <br />
-                    Question {current + 1} of {questions.length}
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <p className="mb-2 font-semibold">
-                    Points so far: {pointsSoFar}
-                </p>
-                {q && (
-                    <div>
-                        <div className="mb-4">{q.question_content}</div>
-                        {q.choices ? (
-                            <ol>
-                                {q.choices.split(";;").map((choice: string, idx: number) => (
-                                    <li key={idx}>
-                                        <label>
-                                            <input
-                                                type="radio"
-                                                name={`question-${current}`}
-                                                checked={answers[current] === idx}
-                                                onChange={() => {
-                                                    const updated = [...answers];
-                                                    updated[current] = idx;
-                                                    setAnswers(updated);
-                                                }}
-                                            />
-                                            {choice}
-                                        </label>
-                                    </li>
-                                ))}
-                            </ol>
-                        ) : (
-                            <textarea
-                                className="w-full border rounded p-2"
-                                placeholder="Type your answer here..."
-                                value={typeof answers[current] === "string" ? answers[current] as string : ""}
-                                onChange={e => {
-                                    const updated = [...answers];
-                                    updated[current] = e.target.value;
-                                    setAnswers(updated);
-                                }}
-                            />
-                        )}
-                    </div>
-                )}
-            </CardContent>
-            <CardFooter className="flex justify-between pt-8">
-                <Link
-                    to={rootPath.pattern}
-                    className="text-muted-foreground hover:text-blue-600"
-                >
-                    Back to home page
-                </Link>
-                <button
-                    onClick={() => setCurrent((c) => c - 1)}
-                    disabled={current === 0}
-                    className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
-                >
-                    Back
-                </button>
-                <button
-                    onClick={() => setCurrent((c) => c + 1)}
-                    disabled={current === questions.length - 1}
-                    className="px-4 py-2 bg-green-500 text-white rounded disabled:opacity-50"
-                >
-                    Next
-                </button>
-            </CardFooter>
-        </Card>
+		<>
+			{showReviewModal && (
+				<ReviewModal
+					questions={questions}
+					answers={answers.map(a => (typeof a === "number" ? String(a) : a))}
+					onGoToQuestion={setCurrent}
+					onClose={() => setShowReviewModal(false)}
+					onSubmit={() => {
+						setShowReviewModal(false);
+					}}
+				/>
+			)}
+
+			<Card className="w-[600px] mx-auto">
+				<CardHeader className="pb-8">
+					<CardTitle>Quiz #{quiz.id}</CardTitle>
+					<CardDescription>
+						{quiz.name}
+						<br />
+						Question {current + 1} of {questions.length}
+					</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<p className="mb-2 font-semibold">
+						Points so far: {pointsSoFar}
+					</p>
+					{q && (
+						<div>
+							<div className="mb-4">{q.question_content}</div>
+							{q.choices ? (
+								<ol>
+									{q.choices.split(";;").map((choice: string, idx: number) => (
+										<li key={choice}>
+											<label>
+												<input
+													type="radio"
+													name={`question-${current}`}
+													checked={answers[current] === idx}
+													onChange={() => {
+														const updated = [...answers];
+														updated[current] = idx;
+														setAnswers(updated);
+													}}
+												/>
+												{choice}
+											</label>
+										</li>
+									))}
+								</ol>
+							) : (
+								<textarea
+									className="w-full border rounded p-2"
+									placeholder="Type your answer here..."
+									value={typeof answers[current] === "string" ? answers[current] as string : ""}
+									onChange={e => {
+										const updated = [...answers];
+										updated[current] = e.target.value;
+										setAnswers(updated);
+									}}
+								/>
+							)}
+						</div>
+					)}
+				</CardContent>
+				<CardFooter className="flex justify-between pt-8">
+					<Link
+						to={rootPath.pattern}
+						className="text-muted-foreground hover:text-blue-600"
+					>
+						Back to home page
+					</Link>
+					<button
+						type="button"
+						onClick={() => setCurrent((c) => c - 1)}
+						disabled={current === 0}
+						className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
+					>
+						Back
+					</button>
+					{current !== questions.length - 1 ? 
+						<button
+							type="button"
+							onClick={() => setCurrent((c) => c + 1)}
+							className="px-4 py-2 bg-green-500 text-white rounded disabled:opacity-50"
+						>
+								Next
+						</button> :
+						<button
+							type="button"
+							onClick={() => setShowReviewModal(true)}
+							className="px-4 py-2 bg-green-500 text-white rounded disabled:opacity-50"
+						>Submit Quiz</button>
+					}
+
+				</CardFooter>
+			</Card>
+		</>
     );
 }
