@@ -20,6 +20,7 @@ export function QuizPage() {
 	const [error, setError] = useState<Error | null>(null);
 	const [current, setCurrent] = useState(0);
 	const [showQuiz, setShowQuiz] = useState(false);
+	const [answers, setAnswers] = useState<(number | null)[]>([]);
 
 	useEffect(() => {
 		fetch(quizApiUrl({ id }))
@@ -27,11 +28,14 @@ export function QuizPage() {
 			.then((data) => {
 				setQuiz(data.quiz);
 				setQuestions(data.questions);
+				console.log(data)
+				setAnswers(Array(data.questions.length).fill(null));
 			})
 			.catch(setError);
 			    if (quiz) {
     }
 	}, [id]);
+	
 
 	if (error)
 		return (
@@ -66,6 +70,18 @@ export function QuizPage() {
 
 	const q = questions[current];
 
+	const pointsSoFar = questions.reduce((sum, q, idx) => {
+		console.log("TEESTTT",)
+		if (
+			answers[idx] !== null &&
+			q.correct_choice_index !== null &&
+			answers[idx] === q.correct_choice_index
+		) {
+			return sum + (q.weight || 1);
+		}
+		return sum;
+	}, 0);
+
 	return (
 		<Card className="w-[600px] mx-auto">
 			<CardHeader className="pb-8">
@@ -76,15 +92,30 @@ export function QuizPage() {
 				</CardDescription>
 			</CardHeader>
 			<CardContent>
+				    <p className="mb-2 font-semibold">
+        Points so far: {pointsSoFar}
+    </p>
 				{q && (
 					<div>
 						<div className="mb-4">{q.question_content}</div>
 						{q.choices && (
 							<ul>
 								{q.choices.split(";;").map((choice: string, idx: number) => (
-									<ol>
-										<li key={idx}>{choice}</li>
-									</ol>
+										<li key={idx}>
+											<label>
+												<input
+													type="radio"
+													name={`question-${current}`}
+													checked={answers[current] === idx}
+													onChange={() => {
+														const updated = [...answers];
+														updated[current] = idx;
+														setAnswers(updated);
+													}}
+												/>
+												{choice}
+											</label>
+										</li>
 								))}
 							</ul>
 						)}
