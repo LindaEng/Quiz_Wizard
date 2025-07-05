@@ -131,7 +131,7 @@ export function QuizResults({ questions, answers, quizName, onRetake, onBackToHo
 
     return (
         <>
-            <Card className="w-[800px] mx-auto">
+            <Card className="w-[800px] mx-auto bg-white font-sans">
                 <CardHeader className="text-center">
                     <div className="flex items-center justify-center gap-2 mb-2">
                         {score >= 80 ? (
@@ -139,21 +139,21 @@ export function QuizResults({ questions, answers, quizName, onRetake, onBackToHo
                         ) : (
                             <Lightbulb className="h-8 w-8 text-blue-500" />
                         )}
-                        <CardTitle className="text-3xl">Quiz Results</CardTitle>
+                        <CardTitle className="text-3xl font-extrabold">Quiz Results</CardTitle>
                     </div>
-                    <CardDescription className="text-lg">{quizName}</CardDescription>
+                    <CardDescription className="text-lg font-bold">{quizName}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     {/* Score Summary */}
                     <div className="text-center space-y-4">
                         <div className="text-4xl font-bold text-primary">{score}%</div>
-                        <div className="text-lg text-muted-foreground">
+                        <div className="text-lg text-main">
                             {correctAnswers.toFixed(2)} out of {totalQuestions} questions correct
                         </div>
                         <Progress value={score} className="w-full" />
                     </div>
                     {/* Performance Message */}
-                    <div className="text-center p-4 rounded-lg bg-muted">
+                    <div className="text-center p-4 rounded-lg bg-white" style={{ border: '0.5px solid black' }}>
                         {score >= 90 && (
                             <p className="text-green-600 font-semibold">🎉 Excellent work! You've mastered this material!</p>
                         )}
@@ -170,7 +170,7 @@ export function QuizResults({ questions, answers, quizName, onRetake, onBackToHo
                     {/* Incorrect Answers Section */}
                     {hasIncorrectAnswers && (
                         <div className="space-y-4">
-                            <h3 className="text-xl font-semibold flex items-center gap-2">
+                            <h3 className="text-xl font-bold flex items-center gap-2">
                                 <AlertCircle className="h-5 w-5 text-red-500" />
                                 Review Answers ({incorrectAnswers.length})
                             </h3>
@@ -183,32 +183,32 @@ export function QuizResults({ questions, answers, quizName, onRetake, onBackToHo
                                     const isTextQuestion = question.correct_choice_index === null;
                                     const isTextWrong = isTextQuestion && llmRatings[index] === 1;
                                     return (
-                                        <Card key={index} className={isTextWrong ? "border-red-200" : isTextQuestion ? "border-blue-200" : "border-red-200"}>
-                                            <CardContent className="p-4">
+                                        <Card key={index} className={isTextWrong ? "border-red-200 bg-white" : isTextQuestion ? "border-blue-200 bg-white" : "border-red-200 bg-white"}>
+                                            <CardContent className="p-4 font-sans">
                                                 <div className="flex items-start justify-between">
                                                     <div className="flex-1">
-                                                        <h4 className="font-semibold mb-2">
+                                                        <h4 className="font-bold mb-2">
                                                             Question {index + 1}: {question.question_content}
                                                         </h4>
                                                         {isTextQuestion ? (
                                                             <div className="text-sm">
-                                                                <span className={`font-medium ${isTextWrong ? "text-red-600" : "text-blue-600"}`}>Your Answer:</span>
-                                                                <p className={isTextWrong ? "text-red-600" : "text-blue-600"}>{getUserAnswerText(question, index)}</p>
+                                                                <span className={`font-bold ${isTextWrong ? "text-red-600" : "text-blue-600"}`}>Your Answer:</span>
+                                                                <p className={isTextWrong ? "text-red-600 font-bold" : "text-blue-600 font-bold"}>{getUserAnswerText(question, index)}</p>
                                                                 {isTextQuestion && llmRatings[index] && (
                                                                     <div className="mt-2 text-xs text-blue-700">
-                                                                        <span className="font-semibold">AI Rating:</span> {llmRatings[index]} / 3 ({llmRatings[index] === 1 ? "33%" : llmRatings[index] === 2 ? "65%" : llmRatings[index] === 3 ? "100%" : ""} correct)
+                                                                        <span className="font-bold">AI Rating:</span> {llmRatings[index]} / 3 ({llmRatings[index] === 1 ? "33%" : llmRatings[index] === 2 ? "65%" : llmRatings[index] === 3 ? "100%" : ""} correct)
                                                                     </div>
                                                                 )}
                                                             </div>
                                                         ) : (
                                                             <div className="grid grid-cols-2 gap-4 text-sm">
                                                                 <div>
-                                                                    <span className="font-medium text-red-600">Your Answer:</span>
-                                                                    <p className="text-red-600">{getUserAnswerText(question, index)}</p>
+                                                                    <span className="font-bold text-red-600">Your Answer:</span>
+                                                                    <p className="text-red-600 font-bold">{getUserAnswerText(question, index)}</p>
                                                                 </div>
                                                                 <div>
-                                                                    <span className="font-medium text-green-600">Expected Answer:</span>
-                                                                    <p className="text-green-600">{getCorrectAnswerText(question, index)}</p>
+                                                                    <span className="font-bold text-green-600">Expected Answer:</span>
+                                                                    <p className="text-green-600 font-bold">{getCorrectAnswerText(question, index)}</p>
                                                                 </div>
                                                             </div>
                                                         )}
@@ -217,7 +217,7 @@ export function QuizResults({ questions, answers, quizName, onRetake, onBackToHo
                                                         onClick={() => generateFeedback(index)}
                                                         variant="outline"
                                                         size="sm"
-                                                        className="ml-4"
+                                                        className="ml-4 font-bold"
                                                     >
                                                         <Lightbulb className="h-4 w-4 mr-1" />
                                                         Get Feedback
@@ -232,18 +232,18 @@ export function QuizResults({ questions, answers, quizName, onRetake, onBackToHo
                     )}
                     {/* All Correct Message */}
                     {!hasIncorrectAnswers && correctAnswers > 0 && (
-                        <div className="text-center p-6 bg-green-50 rounded-lg border border-green-200">
+                        <div className="text-center p-6 bg-white rounded-lg border border-green-200">
                             <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-2" />
-                            <h3 className="text-xl font-semibold text-green-800 mb-2">Perfect Score!</h3>
+                            <h3 className="text-xl font-bold text-green-800 mb-2">Perfect Score!</h3>
                             <p className="text-green-700">Congratulations! You answered all questions correctly.</p>
                         </div>
                     )}
                 </CardContent>
                 <CardFooter className="flex justify-between">
-                    <Button onClick={onBackToHome} variant="outline">
+                    <Button onClick={onBackToHome} variant="outline" className="font-bold border" style={{ border: '0.5px solid black', minWidth: '8rem' }}>
                         Back to Home
                     </Button>
-                    <Button onClick={onRetake} className="flex items-center gap-2">
+                    <Button onClick={onRetake} className="flex items-center gap-2 font-bold">
                         <RefreshCw className="h-4 w-4" />
                         Retake Quiz
                     </Button>

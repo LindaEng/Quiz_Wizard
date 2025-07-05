@@ -4,13 +4,12 @@ export type User = {
     id: number;
     name: string;
     email: string;
-    password_hash: string;
 };
 
-export function createUser({ name, email, password_hash }: { name: string; email: string; password_hash: string }): User {
-    const stmt = db.prepare("INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)");
-    const info = stmt.run(name, email, password_hash);
-    return { id: Number(info.lastInsertRowid), name, email, password_hash };
+export function createUser({ name, email }: { name: string; email: string }): User {
+    const stmt = db.prepare("INSERT INTO users (name, email) VALUES (?, ?)");
+    const info = stmt.run(name, email);
+    return { id: Number(info.lastInsertRowid), name, email };
 }
 
 export function findUserByEmail(email: string): User | undefined {

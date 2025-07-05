@@ -38,7 +38,7 @@ export function FeedbackModal({
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <Card className="w-[600px] max-h-[80vh] overflow-y-auto">
+            <Card className="w-[600px] max-h-[80vh] overflow-y-auto bg-white" style={{ border: '0.5px solid black', borderRadius: '4px' }}>
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">

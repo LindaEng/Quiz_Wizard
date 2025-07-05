@@ -54,8 +54,14 @@
 		@apply border-border;
 	}
 
-	body {
+	body, #root, html {
 		@apply bg-background text-foreground;
 		max-width: 1440px;
+		background: #fff !important;
+		min-height: 100vh;
+		width: 100vw;
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
 	}
 }

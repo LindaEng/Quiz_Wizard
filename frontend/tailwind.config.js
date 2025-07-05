@@ -6,6 +6,8 @@ module.exports = {
 		"./components/**/*.{ts,tsx}",
 		"./app/**/*.{ts,tsx}",
 		"./src/**/*.{ts,tsx}",
+		"./index.html",
+		"./src/**/*.{js,ts,jsx,tsx}",
 	],
 	prefix: "",
 	theme: {
@@ -71,7 +73,12 @@ module.exports = {
 				"accordion-down": "accordion-down 0.2s ease-out",
 				"accordion-up": "accordion-up 0.2s ease-out",
 			},
+			fontFamily: {
+				sans: ['Inter', 'Helvetica', 'Arial', 'sans-serif'],
+			},
 		},
 	},
 	plugins: [require("tailwindcss-animate")],
 };
+
+// Use 'border-dotted' for dotted lines and 'font-bold' for bold text in your components.
