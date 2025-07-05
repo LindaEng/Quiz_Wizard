@@ -8,12 +8,15 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { ReviewModal } from "@/components/reviewModal";
+import { QuizResults } from "@/components/quizResults";
 import { quizApiUrl, rootPath } from "@/paths";
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import { feedbackApiUrl } from "@/paths";
 
 export function QuizPage() {
     const { id } = useParams();
+    const navigate = useNavigate();
     if (!id) throw new Error("Quiz id param is required");
 
     const [quiz, setQuiz] = useState<Quiz | null>(null);
@@ -22,7 +25,11 @@ export function QuizPage() {
     const [current, setCurrent] = useState(0);
     const [showQuiz, setShowQuiz] = useState(false);
     const [answers, setAnswers] = useState<(number | string | null)[]>([]);
-	const [showReviewModal, setShowReviewModal] = useState(false);
+    const [showReviewModal, setShowReviewModal] = useState(false);
+    const [showResults, setShowResults] = useState(false);
+    const [llmRatings, setLlmRatings] = useState<{ [index: number]: number }>({});
+    const [llmSummaries, setLlmSummaries] = useState<{ [index: number]: string }>({});
+    const [isScoring, setIsScoring] = useState(false);
 
     useEffect(() => {
         fetch(quizApiUrl({ id }))
@@ -88,6 +95,68 @@ export function QuizPage() {
         return sum;
     }, 0);
 
+    if (showResults) {
+        return (
+            <QuizResults
+                questions={questions}
+                answers={answers}
+                quizName={quiz?.name || "Quiz"}
+                onRetake={() => {
+                    setShowResults(false);
+                    setShowQuiz(false);
+                    setCurrent(0);
+                    setAnswers(Array(questions.length).fill(null));
+                    setLlmRatings({});
+                    setLlmSummaries({});
+                }}
+                onBackToHome={() => navigate(rootPath.pattern)}
+                llmRatings={llmRatings}
+                llmSummaries={llmSummaries}
+            />
+        );
+    }
+
+    const handleSubmitQuiz = async () => {
+        setShowReviewModal(false);
+        setIsScoring(true);
+        const textQuestions = questions
+            .map((q, idx) => ({ ...q, idx }))
+            .filter(q => q.correct_choice_index === null && answers[q.idx] && answers[q.idx] !== "");
+        if (textQuestions.length === 0) {
+            setShowResults(true);
+            setIsScoring(false);
+            return;
+        }
+        const payload = {
+            incorrectAnswers: textQuestions.map(q => ({
+                question: q.question_content,
+                userAnswer: answers[q.idx],
+                correctAnswer: "",
+                choices: undefined,
+                questionType: "text"
+            }))
+        };
+        try {
+            const res = await fetch(feedbackApiUrl({}) + "/bulk", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            if (res.ok) {
+                const data = await res.json();
+                const ratings: { [index: number]: number } = {};
+                const summaries: { [index: number]: string } = {};
+                data.feedback.forEach((fb: any, i: number) => {
+                    ratings[textQuestions[i].idx] = fb.rating;
+                    if (fb.summary) summaries[textQuestions[i].idx] = fb.summary;
+                });
+                setLlmRatings(ratings);
+                setLlmSummaries(summaries);
+            }
+        } catch (e) {}
+        setIsScoring(false);
+        setShowResults(true);
+    };
 
     return (
 		<>
@@ -97,11 +166,15 @@ export function QuizPage() {
 					answers={answers.map(a => (typeof a === "number" ? String(a) : a))}
 					onGoToQuestion={setCurrent}
 					onClose={() => setShowReviewModal(false)}
-					onSubmit={() => {
-						setShowReviewModal(false);
-					}}
+					onSubmit={handleSubmitQuiz}
 				/>
 			)}
+
+            {isScoring && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
+                    <div className="bg-white p-8 rounded shadow text-xl">Scoring your answers...</div>
+                </div>
+            )}
 
 			<Card className="w-[600px] mx-auto">
 				<CardHeader className="pb-8">
@@ -175,15 +248,16 @@ export function QuizPage() {
 							onClick={() => setCurrent((c) => c + 1)}
 							className="px-4 py-2 bg-green-500 text-white rounded disabled:opacity-50"
 						>
-								Next
+							Next
 						</button> :
 						<button
 							type="button"
 							onClick={() => setShowReviewModal(true)}
 							className="px-4 py-2 bg-green-500 text-white rounded disabled:opacity-50"
-						>Submit Quiz</button>
+						>
+							Submit Quiz
+						</button>
 					}
-
 				</CardFooter>
 			</Card>
 		</>

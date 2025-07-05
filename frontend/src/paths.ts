@@ -11,6 +11,7 @@ const apiUrlFactory = <T extends string>(pattern: T) => {
 // api urls
 export const quizApiUrl = apiUrlFactory("/api/quizzes/:id");
 export const quizzesApiUrl = apiUrlFactory("/api/quizzes");
+export const feedbackApiUrl = apiUrlFactory("/api/feedback");
 
 // local routes
 export const rootPath = pathFactory("/");

@@ -1,6 +1,7 @@
 import cors from "@fastify/cors";
 import fastify from "fastify";
 import { quizRoutes } from "./routes/quizRoutes";
+import { feedbackRoutes } from "./routes/feedbackRoutes";
 
 const server = fastify();
 
@@ -13,11 +14,11 @@ server.get("/", async (_request, _reply) => {
 });
 
 server.register(quizRoutes, { prefix: "/api" });
+server.register(feedbackRoutes, { prefix: "/api" });
 
 server.listen({ port: PORT }, (err) => {
 	if (err) {
 		console.error(err);
 		process.exit(1);
 	}
-	console.log(`Server listening at http://localhost:${PORT}`);
 });

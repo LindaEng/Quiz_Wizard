@@ -3,7 +3,6 @@ import { db } from "../db-client";
 
 try {
 	db.transaction(() => {
-		// run all migrations in the ./migrations folder
 		const migrations = fs
 			.readdirSync("./migrations")
 			.filter((file) => file.endsWith(".sql"))
