@@ -70,6 +70,16 @@ A full-stack quiz application built with React, TypeScript, Fastify, and SQLite 
 
 This will start both the backend server (port 3001) and frontend development server (port 5173).
 
+### Logging In
+
+Once the servers are running, you can access the application at `http://localhost:5173`.
+
+**Test Account:**
+- Email: `john@example.com`
+- No password required (email-only authentication)
+
+Simply enter the email address and click "Login" to access the quiz interface.
+
 ### Database Setup
 
 The application uses SQLite with the following schema:
